@@ -36,7 +36,7 @@ deploy28:
 run28:
 	docker exec master-nextcloud-1 sudo -u www-data php occ app_api:app:unregister to_gif_example --silent || true
 	docker exec master-nextcloud-1 sudo -u www-data php occ app_api:app:register to_gif_example docker_dev \
-		-e --force-scopes \
+		--force-scopes \
 		--info-xml https://raw.githubusercontent.com/cloud-py-api/to_gif_example/main/appinfo/info.xml
 
 .PHONY: deploy27
@@ -49,7 +49,7 @@ deploy27:
 run27:
 	docker exec master-stable27-1 sudo -u www-data php occ app_api:app:unregister to_gif_example --silent || true
 	docker exec master-stable27-1 sudo -u www-data php occ app_api:app:register to_gif_example docker_dev \
-		-e --force-scopes \
+		--force-scopes \
 		--info-xml https://raw.githubusercontent.com/cloud-py-api/to_gif_example/main/appinfo/info.xml
 
 .PHONY: manual_register28
@@ -57,11 +57,11 @@ manual_register28:
 	docker exec master-nextcloud-1 sudo -u www-data php occ app_api:app:unregister to_gif_example --silent || true
 	docker exec master-nextcloud-1 sudo -u www-data php occ app_api:app:register to_gif_example manual_install --json-info \
   "{\"appid\":\"to_gif_example\",\"name\":\"to_gif_example\",\"daemon_config_name\":\"manual_install\",\"version\":\"1.0.0\",\"secret\":\"12345\",\"host\":\"host.docker.internal\",\"port\":10040,\"scopes\":{\"required\":[\"FILES\", \"NOTIFICATIONS\"],\"optional\":[]},\"protocol\":\"http\",\"system_app\":0}" \
-  -e --force-scopes
+  --force-scopes
 
 .PHONY: manual_register27
 manual_register27:
 	docker exec master-stable27-1 sudo -u www-data php occ app_api:app:unregister to_gif_example --silent || true
 	docker exec master-stable27-1 sudo -u www-data php occ app_api:app:register to_gif_example manual_install --json-info \
   "{\"appid\":\"to_gif_example\",\"name\":\"to_gif_example\",\"daemon_config_name\":\"manual_install\",\"version\":\"1.0.0\",\"secret\":\"12345\",\"host\":\"host.docker.internal\",\"port\":10040,\"scopes\":{\"required\":[\"FILES\", \"NOTIFICATIONS\"],\"optional\":[]},\"protocol\":\"http\",\"system_app\":0}" \
-  -e --force-scopes
+  --force-scopes
