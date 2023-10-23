@@ -257,6 +257,12 @@ def enabled_callback(
     return responses.JSONResponse(content={"error": r}, status_code=200)
 
 
+@APP.post("/init")
+def init_callback():
+    ocs_call(method="PUT", path=f"/ocs/v1.php/apps/app_api/apps/status/{os.environ['APP_ID']}", json_data={"progress": 100})
+    return responses.JSONResponse(content={}, status_code=200)
+
+
 @APP.get("/heartbeat")
 def heartbeat_callback():
     return responses.JSONResponse(content={"status": "ok"}, status_code=200)
