@@ -7,9 +7,9 @@
 	<![CDATA[
 **Demonstration of using [`AppAPI`](https://github.com/cloud-py-api/app_api) and File Actions.**
 
-This application is an example, but the model used in it is quite large, and it is recommended to use a GPU.
+This application is an example, with simple conversion using opencv and numpy.
 
-It shouldn't be difficult to use an even more advanced model based on this example and release a full application.
+After adding the ability for external applications to display a user interface, the example will be modified to use more complex logic depending on the parameters specified by the user.
 
 Refer to [How to install](https://github.com/cloud-py-api/to_gif_example/blob/main/HOW_TO_INSTALL.md) to try it.
 	]]></description>
