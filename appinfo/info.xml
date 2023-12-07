@@ -13,7 +13,7 @@ After adding the ability for external applications to display a user interface, 
 
 Refer to [How to install](https://github.com/cloud-py-api/to_gif_example/blob/main/HOW_TO_INSTALL.md) to try it.
 	]]></description>
-	<version>1.2.0</version>
+	<version>1.2.1</version>
 	<licence>MIT</licence>
 	<author mail="andrey18106x@gmail.com" homepage="https://github.com/andrey18106">Andrey Borysenko</author>
 	<author mail="bigcat88@icloud.com" homepage="https://github.com/bigcat88">Alexander Piskun</author>
