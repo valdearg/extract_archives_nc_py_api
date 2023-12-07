@@ -37,8 +37,8 @@ deploy27:
 
 .PHONY: deploy28
 deploy28:
-	docker exec master-stable27-1 sudo -u www-data php occ app_api:app:unregister to_gif_example --silent || true
-	docker exec master-stable27-1 sudo -u www-data php occ app_api:app:deploy to_gif_example docker_dev \
+	docker exec master-stable28-1 sudo -u www-data php occ app_api:app:unregister to_gif_example --silent || true
+	docker exec master-stable28-1 sudo -u www-data php occ app_api:app:deploy to_gif_example docker_dev \
 		--info-xml https://raw.githubusercontent.com/cloud-py-api/to_gif_example/main/appinfo/info.xml
 
 .PHONY: deploy
@@ -56,8 +56,8 @@ run27:
 
 .PHONY: run28
 run28:
-	docker exec master-stable27-1 sudo -u www-data php occ app_api:app:unregister to_gif_example --silent || true
-	docker exec master-stable27-1 sudo -u www-data php occ app_api:app:register to_gif_example docker_dev \
+	docker exec master-stable28-1 sudo -u www-data php occ app_api:app:unregister to_gif_example --silent || true
+	docker exec master-stable28-1 sudo -u www-data php occ app_api:app:register to_gif_example docker_dev \
 		--force-scopes \
 		--info-xml https://raw.githubusercontent.com/cloud-py-api/to_gif_example/main/appinfo/info.xml
 
