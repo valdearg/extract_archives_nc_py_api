@@ -39,12 +39,6 @@ class UiActionFileInfo(BaseModel):
     instanceId: typing.Optional[str]
 
 
-class UiFileActionHandlerInfo(BaseModel):
-    actionName: str
-    actionHandler: str
-    actionFile: UiActionFileInfo
-
-
 def random_string(size: int) -> str:
     return "".join(choice(ascii_lowercase + ascii_uppercase + digits) for _ in range(size))
 
@@ -203,7 +197,7 @@ def convert_video_to_gif(input_file: UiActionFileInfo, user_id: str):
 
 @APP.post("/video_to_gif")
 def video_to_gif(
-    file: UiFileActionHandlerInfo,
+    file: UiActionFileInfo,
     request: Request,
     background_tasks: BackgroundTasks,
 ):
@@ -211,7 +205,7 @@ def video_to_gif(
         user_id = sign_check(request)
     except ValueError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-    background_tasks.add_task(convert_video_to_gif, file.actionFile, user_id)
+    background_tasks.add_task(convert_video_to_gif, file, user_id)
     return Response()
 
 
@@ -230,15 +224,13 @@ def enabled_callback(
         if enabled:
             result = ocs_call(
                 "POST",
-                "/ocs/v1.php/apps/app_api/api/v1/files/actions/menu",
+                "/ocs/v1.php/apps/app_api/api/v1/ui/files-actions-menu",
                 json_data={
-                    "fileActionMenuParams": {
-                        "name": "to_gif",
-                        "display_name": "To GIF",
-                        "mime": "video",
-                        "permissions": 31,
-                        "action_handler": "/video_to_gif",
-                    }
+                    "name": "to_gif",
+                    "displayName": "To GIF",
+                    "mime": "video",
+                    "permissions": 31,
+                    "actionHandler": "/video_to_gif",
                 },
             )
             response_data = json.loads(result.text)
@@ -248,19 +240,13 @@ def enabled_callback(
         else:
             ocs_call(
                 "DELETE",
-                "/ocs/v1.php/apps/app_api/api/v1/files/actions/menu",
-                json_data={"fileActionMenuName": "to_gif"},
+                "/ocs/v1.php/apps/app_api/api/v1/ui/files-actions-menu",
+                json_data={"name": "to_gif"},
             )
     except Exception as e:
         r = str(e)
     print(f"enabled={enabled} -> {r}")
     return responses.JSONResponse(content={"error": r}, status_code=200)
-
-
-@APP.post("/init")
-def init_callback():
-    ocs_call(method="PUT", path=f"/ocs/v1.php/apps/app_api/apps/status/{os.environ['APP_ID']}", json_data={"progress": 100})
-    return responses.JSONResponse(content={}, status_code=200)
 
 
 @APP.get("/heartbeat")
