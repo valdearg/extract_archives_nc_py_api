@@ -9,10 +9,6 @@ help:
 	@echo "  "
 	@echo "  build-push        build image and upload to ghcr.io"
 	@echo "  "
-	@echo "  deploy27          deploy example to registered 'docker_dev' for Nextcloud 27"
-	@echo "  deploy28          deploy example to registered 'docker_dev' for Nextcloud 28"
-	@echo "  deploy            deploy example to registered 'docker_dev' for Nextcloud Last"
-	@echo "  "
 	@echo "  run27             install ToGif for Nextcloud 27"
 	@echo "  run28             install ToGif for Nextcloud 28"
 	@echo "  run               install ToGif for Nextcloud Last"
@@ -29,62 +25,44 @@ build-push:
 	docker login ghcr.io
 	docker buildx build --push --platform linux/arm64/v8,linux/amd64 --tag ghcr.io/cloud-py-api/to_gif_example:1.2.0 --tag ghcr.io/cloud-py-api/to_gif_example:latest .
 
-.PHONY: deploy27
-deploy27:
-	docker exec master-stable27-1 sudo -u www-data php occ app_api:app:unregister to_gif_example --silent || true
-	docker exec master-stable27-1 sudo -u www-data php occ app_api:app:deploy to_gif_example docker_dev \
-		--info-xml https://raw.githubusercontent.com/cloud-py-api/to_gif_example/main/appinfo/info.xml
-
-.PHONY: deploy28
-deploy28:
-	docker exec master-stable28-1 sudo -u www-data php occ app_api:app:unregister to_gif_example --silent || true
-	docker exec master-stable28-1 sudo -u www-data php occ app_api:app:deploy to_gif_example docker_dev \
-		--info-xml https://raw.githubusercontent.com/cloud-py-api/to_gif_example/main/appinfo/info.xml
-
-.PHONY: deploy
-deploy:
-	docker exec master-nextcloud-1 sudo -u www-data php occ app_api:app:unregister to_gif_example --silent || true
-	docker exec master-nextcloud-1 sudo -u www-data php occ app_api:app:deploy to_gif_example docker_dev \
-		--info-xml https://raw.githubusercontent.com/cloud-py-api/to_gif_example/main/appinfo/info.xml
-
 .PHONY: run27
 run27:
 	docker exec master-stable27-1 sudo -u www-data php occ app_api:app:unregister to_gif_example --silent || true
-	docker exec master-stable27-1 sudo -u www-data php occ app_api:app:register to_gif_example docker_dev \
+	docker exec master-stable27-1 sudo -u www-data php occ app_api:app:register to_gif_example \
 		--force-scopes \
-		--info-xml https://raw.githubusercontent.com/cloud-py-api/to_gif_example/main/appinfo/info.xml
+		--info-xml https://raw.githubusercontent.com/cloud-py-api/to_gif_example/v1.2.0/appinfo/info.xml
 
 .PHONY: run28
 run28:
 	docker exec master-stable28-1 sudo -u www-data php occ app_api:app:unregister to_gif_example --silent || true
-	docker exec master-stable28-1 sudo -u www-data php occ app_api:app:register to_gif_example docker_dev \
+	docker exec master-stable28-1 sudo -u www-data php occ app_api:app:register to_gif_example \
 		--force-scopes \
 		--info-xml https://raw.githubusercontent.com/cloud-py-api/to_gif_example/main/appinfo/info.xml
 
 .PHONY: run
 run:
 	docker exec master-nextcloud-1 sudo -u www-data php occ app_api:app:unregister to_gif_example --silent || true
-	docker exec master-nextcloud-1 sudo -u www-data php occ app_api:app:register to_gif_example docker_dev \
+	docker exec master-nextcloud-1 sudo -u www-data php occ app_api:app:register to_gif_example \
 		--force-scopes \
-		--info-xml https://raw.githubusercontent.com/cloud-py-api/to_gif_example/main/appinfo/info.xml
+		--info-xml https://raw.githubusercontent.com/cloud-py-api/to_gif_example/v1.2.0/appinfo/info.xml
 
 .PHONY: register27
 register27:
 	docker exec master-stable27-1 sudo -u www-data php occ app_api:app:unregister to_gif_example --silent || true
 	docker exec master-stable27-1 sudo -u www-data php occ app_api:app:register to_gif_example manual_install --json-info \
-  "{\"appid\":\"to_gif_example\",\"name\":\"to_gif_example\",\"daemon_config_name\":\"manual_install\",\"version\":\"1.0.0\",\"secret\":\"12345\",\"host\":\"host.docker.internal\",\"port\":10040,\"scopes\":{\"required\":[\"FILES\", \"NOTIFICATIONS\"],\"optional\":[]},\"protocol\":\"http\",\"system_app\":0}" \
+  "{\"id\":\"to_gif_example\",\"name\":\"to_gif_example\",\"daemon_config_name\":\"manual_install\",\"version\":\"1.0.0\",\"secret\":\"12345\",\"port\":10040,\"scopes\":[\"FILES\", \"NOTIFICATIONS\"],\"system\":0}" \
   --force-scopes --wait-finish
 
 .PHONY: register28
 register28:
 	docker exec master-stable28-1 sudo -u www-data php occ app_api:app:unregister to_gif_example --silent || true
 	docker exec master-stable28-1 sudo -u www-data php occ app_api:app:register to_gif_example manual_install --json-info \
-  "{\"appid\":\"to_gif_example\",\"name\":\"to_gif_example\",\"daemon_config_name\":\"manual_install\",\"version\":\"1.0.0\",\"secret\":\"12345\",\"host\":\"host.docker.internal\",\"port\":10040,\"scopes\":{\"required\":[\"FILES\", \"NOTIFICATIONS\"],\"optional\":[]},\"protocol\":\"http\",\"system_app\":0}" \
+  "{\"id\":\"to_gif_example\",\"name\":\"to_gif_example\",\"daemon_config_name\":\"manual_install\",\"version\":\"1.0.0\",\"secret\":\"12345\",\"port\":10040,\"scopes\":[\"FILES\", \"NOTIFICATIONS\"],\"system\":0}" \
   --force-scopes --wait-finish
 
 .PHONY: register
 register:
 	docker exec master-nextcloud-1 sudo -u www-data php occ app_api:app:unregister to_gif_example --silent || true
 	docker exec master-nextcloud-1 sudo -u www-data php occ app_api:app:register to_gif_example manual_install --json-info \
-  "{\"appid\":\"to_gif_example\",\"name\":\"to_gif_example\",\"daemon_config_name\":\"manual_install\",\"version\":\"1.0.0\",\"secret\":\"12345\",\"host\":\"host.docker.internal\",\"port\":10040,\"scopes\":{\"required\":[\"FILES\", \"NOTIFICATIONS\"],\"optional\":[]},\"protocol\":\"http\",\"system_app\":0}" \
+  "{\"id\":\"to_gif_example\",\"name\":\"to_gif_example\",\"daemon_config_name\":\"manual_install\",\"version\":\"1.0.0\",\"secret\":\"12345\",\"port\":10040,\"scopes\":[\"FILES\", \"NOTIFICATIONS\"],\"system\":0}" \
   --force-scopes --wait-finish
