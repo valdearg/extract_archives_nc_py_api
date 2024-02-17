@@ -23,7 +23,7 @@ help:
 .PHONY: build-push
 build-push:
 	docker login ghcr.io
-	docker buildx build --push --platform linux/arm64/v8,linux/amd64 --tag ghcr.io/cloud-py-api/to_gif_example:1.2.0 --tag ghcr.io/cloud-py-api/to_gif_example:latest .
+	docker buildx build --push --platform linux/arm64/v8,linux/amd64 --tag ghcr.io/cloud-py-api/to_gif_example:1.3.0 --tag ghcr.io/cloud-py-api/to_gif_example:latest .
 
 .PHONY: run27
 run27:
