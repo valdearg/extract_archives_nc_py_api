@@ -68,21 +68,21 @@ register:
   --force-scopes --wait-finish
 
 .PHONY: run27local
-run27:
+run27local:
 	sudo -u www-data php occ app_api:app:unregister extract_archives --silent || true
 	sudo -u www-data php occ app_api:app:register extract_archives \
 		--force-scopes \
 		--info-xml https://raw.githubusercontent.com/valdearg/extract_archives/v1.2.0/appinfo/info.xml
 
 .PHONY: run28local
-run28:
+run28local:
 	sudo -u www-data php occ app_api:app:unregister extract_archives --silent || true
 	sudo -u www-data php occ app_api:app:register extract_archives \
 		--force-scopes \
 		--info-xml https://raw.githubusercontent.com/valdearg/extract_archives/main/appinfo/info.xml
 
 .PHONY: runlocal
-run:
+runlocal:
 	sudo -u www-data php occ app_api:app:unregister extract_archives --silent || true
 	sudo -u www-data php occ app_api:app:register extract_archives \
 		--force-scopes \
