@@ -2,16 +2,16 @@
 
 .PHONY: help
 help:
-	@echo "Welcome to ToGif example. Please use \`make <target>\` where <target> is one of"
+	@echo "Welcome to ExtractArchives example. Please use \`make <target>\` where <target> is one of"
 	@echo " "
 	@echo "  Next commands are only for dev environment with nextcloud-docker-dev!"
 	@echo "  They should run from the host you are developing on(with activated venv) and not in the container with Nextcloud!"
 	@echo "  "
 	@echo "  build-push        build image and upload to ghcr.io"
 	@echo "  "
-	@echo "  run27             install ToGif for Nextcloud 27"
-	@echo "  run28             install ToGif for Nextcloud 28"
-	@echo "  run               install ToGif for Nextcloud Last"
+	@echo "  run27             install ExtractArchives for Nextcloud 27"
+	@echo "  run28             install ExtractArchives for Nextcloud 28"
+	@echo "  run               install ExtractArchives for Nextcloud Last"
 	@echo "  "
 	@echo "  For development of this example use PyCharm run configurations. Development is always set for last Nextcloud."
 	@echo "  First run 'extract_archives' and then 'make registerX', after that you can use/debug/develop it and easy test."
@@ -66,3 +66,24 @@ register:
 	docker exec master-nextcloud-1 sudo -u www-data php occ app_api:app:register extract_archives manual_install --json-info \
   "{\"id\":\"extract_archives\",\"name\":\"extract_archives\",\"daemon_config_name\":\"manual_install\",\"version\":\"1.0.0\",\"secret\":\"12345\",\"port\":10040,\"scopes\":[\"FILES\", \"NOTIFICATIONS\"],\"system\":0}" \
   --force-scopes --wait-finish
+
+.PHONY: run27local
+run27:
+	sudo -u www-data php occ app_api:app:unregister extract_archives --silent || true
+	sudo -u www-data php occ app_api:app:register extract_archives \
+		--force-scopes \
+		--info-xml https://raw.githubusercontent.com/valdearg/extract_archives/v1.2.0/appinfo/info.xml
+
+.PHONY: run28local
+run28:
+	sudo -u www-data php occ app_api:app:unregister extract_archives --silent || true
+	sudo -u www-data php occ app_api:app:register extract_archives \
+		--force-scopes \
+		--info-xml https://raw.githubusercontent.com/valdearg/extract_archives/main/appinfo/info.xml
+
+.PHONY: runlocal
+run:
+	sudo -u www-data php occ app_api:app:unregister extract_archives --silent || true
+	sudo -u www-data php occ app_api:app:register extract_archives \
+		--force-scopes \
+		--info-xml https://raw.githubusercontent.com/valdearg/extract_archives/v1.2.0/appinfo/info.xml

@@ -7,7 +7,7 @@
 		<![CDATA[
 **Demonstration of using [`AppAPI`](https://github.com/valdearg/app_api) and File Actions.**
 
-Basic extracting archives, still in testing. Originally based on [ToGif](https://github.com/valdearg/extract_archives)
+Basic extracting archives, still in testing. Originally based on [ExtractArchives](https://github.com/valdearg/extract_archives)
 
 Refer to [How to install](https://github.com/valdearg/extract_archives/blob/main/HOW_TO_INSTALL.md) to try it.
 	]]>	</description>
