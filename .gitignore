@@ -1,1 +1,4 @@
 /dev/
+.idea/
+venv/
+__pycache__/
