@@ -207,8 +207,11 @@ def extract_to_auto(input_file: FsNode, nc: NextcloudApp, extract_to="auto"):
 
     try:
         with open(downloaded_file, "wb") as tmp_in:
-            nc.files.download2stream(path=dav_file_path, fp=tmp_in)
-            nc.log(LogLvl.WARNING, "File downloaded")
+            try:
+                nc.files.download2stream(path=dav_file_path, fp=tmp_in)
+                nc.log(LogLvl.WARNING, "File downloaded")
+            except Exception as ex:
+                nc.log(LogLvl.ERROR, f"Error downloading file: {ex}")
 
             tmp_in.flush()
 
