@@ -1,32 +1,32 @@
 <?xml version="1.0"?>
 <info>
-	<id>extract_archives</id>
-	<name>Extract Archives</name>
+	<id>extract_archives_nc_py_api</id>
+	<name>Extract Archives (nc_py_api)</name>
 	<summary>Nextcloud Extract Archives</summary>
 	<description>
 		<![CDATA[
 **Demonstration of using [`AppAPI`](https://github.com/valdearg/app_api) and File Actions.**
 
-Basic extracting archives, still in testing. Originally based on [ExtractArchives](https://github.com/valdearg/extract_archives)
+Basic extracting archives, still in testing. Originally based on [ExtractArchives](https://github.com/valdearg/extract_archives_nc_py_api)
 
-Refer to [How to install](https://github.com/valdearg/extract_archives/blob/main/HOW_TO_INSTALL.md) to try it.
+Refer to [How to install](https://github.com/valdearg/extract_archives_nc_py_api/blob/main/HOW_TO_INSTALL.md) to try it.
 	]]>	</description>
 	<version>0.0.1</version>
 	<licence>MIT</licence>
 	<author mail="valdearg@neko.network" homepage="https://github.com/valdearg">Valdearg</author>
-	<namespace>ExtractArchives</namespace>
-	<screenshot>https://raw.githubusercontent.com/valdearg/extract_archives/main/screenshots/fileaction.png</screenshot>
+	<namespace>ExtractArchivesNCPyAPI</namespace>
+	<screenshot>https://raw.githubusercontent.com/valdearg/extract_archives_nc_py_api/main/screenshots/fileaction.png</screenshot>
 	<category>tools</category>
-	<website>https://github.com/valdearg/extract_archives</website>
-	<bugs>https://github.com/valdearg/extract_archives/issues</bugs>
-	<repository type="git">https://github.com/valdearg/extract_archives.git</repository>
+	<website>https://github.com/valdearg/extract_archives_nc_py_api</website>
+	<bugs>https://github.com/valdearg/extract_archives_nc_py_api/issues</bugs>
+	<repository type="git">https://github.com/valdearg/extract_archives_nc_py_api.git</repository>
 	<dependencies>
 		<nextcloud min-version="27" max-version="28"/>
 	</dependencies>
 	<external-app>
 		<docker-install>
 			<registry>ghcr.io</registry>
-			<image>valdearg/extract_archives</image>
+			<image>valdearg/extract_archives_nc_py_api</image>
 			<image-tag>0.0.1</image-tag>
 		</docker-install>
 		<scopes>
