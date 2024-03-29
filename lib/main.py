@@ -72,6 +72,10 @@ def extract_folder_name(zip_filename, nc_file_path):
                 # folder_name = zip_file_path.split("/")[-1]
                 folder_name = os.path.splitext(str(nc_file_path))[0]
                 return folder_name
+            elif len(root_folders_array) > 1:
+                print("Number of folders > 1, using zip file name!")
+                folder_name = os.path.splitext(str(nc_file_path))[0]
+                return folder_name
             elif (
                 len(root_folders_array) == 1
                 and nc_file_path.parent.name == nc_file_path.stem
