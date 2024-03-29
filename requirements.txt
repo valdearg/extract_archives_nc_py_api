@@ -9,3 +9,5 @@ pydantic>=2.1.1
 requests>=2.31
 xmltodict>=0.13
 pyunpack
+nc_py_api
+nc_py_api[app]
