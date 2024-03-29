@@ -188,10 +188,13 @@ def extract_to_auto(input_file: FsNode, nc: NextcloudApp, extract_to="auto"):
 
     input_file_name = input_file.user_path.split("\\")[-1]
 
+    nc.log(LogLvl.WARNING, f"input_file_name path: {input_file_name}")
     print(f"input_file_name path: {input_file_name}")
 
     dav_file_path = input_file.user_path.replace("\\", "/")
     user_id, dav_file_path = dav_file_path.split("/", 1)
+
+    nc.log(LogLvl.WARNING, f"DAV file path: {dav_file_path}")
     print(f"DAV file path: {dav_file_path}")
 
     temp_path = tempfile.gettempdir()
@@ -227,17 +230,21 @@ def extract_to_auto(input_file: FsNode, nc: NextcloudApp, extract_to="auto"):
             if str(dav_destination_path).startswith(user_id):
                 dav_destination_path = str(dav_destination_path).split("/", 1)[-1]
 
+            nc.log(LogLvl.WARNING, f"Extracting to: {dav_destination_path}")
             print(f"Extracting to: {dav_destination_path}")
         except Exception as ex:
+            nc.log(LogLvl.WARNING, f"ERROR: Checking dest path for archive: {ex}")
             print(f"ERROR: Checking dest path for archive: {ex}")
 
         print(f"Extracting archive {input_file.name}")
         try:
             Archive(downloaded_file).extractall(destination_path)
         except Exception as ex:
+            nc.log(LogLvl.WARNING, f"Error extracting archive: {ex}")
             print(f"Error extracting archive: {ex}")
 
         for filename in Path(destination_path).rglob("*.*"):
+            nc.log(LogLvl.WARNING, f"File: {str(filename)}")
             print(f"File: {str(filename)}")
             # print(f"DAV save path originally: {dav_save_file_path}")
             dav_save_file_path = str(filename).replace(
@@ -250,15 +257,18 @@ def extract_to_auto(input_file: FsNode, nc: NextcloudApp, extract_to="auto"):
 
             dav_save_file_path = dav_save_file_path.split("/", 1)[-1]
 
+            nc.log(LogLvl.WARNING, f"Final DAV path: {dav_save_file_path}")
             print(f"Final DAV path: {dav_save_file_path}")
 
             nc.files.upload_stream(path=dav_save_file_path, fp=filename)
             os.remove(str(filename))
 
         try:
+            nc.log(LogLvl.WARNING, "Removing original file")
             print("Removing original file")
             os.remove(downloaded_file)
         except Exception as ex:
+            nc.log(LogLvl.WARNING, f"Error removing file: {ex}")
             print(f"Error removing file: {ex}")
 
         nc.log(LogLvl.WARNING, "Result uploaded")
