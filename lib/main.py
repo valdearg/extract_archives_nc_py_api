@@ -81,6 +81,74 @@ def sign_request(headers: dict, user="") -> None:
     headers["OCS-APIRequest"] = "true"
 
 
+def sign_check(request: Request) -> str:
+    headers = {
+        "AA-VERSION": request.headers["AA-VERSION"],
+        "EX-APP-ID": request.headers["EX-APP-ID"],
+        "EX-APP-VERSION": request.headers["EX-APP-VERSION"],
+        "AUTHORIZATION-APP-API": request.headers.get("AUTHORIZATION-APP-API", ""),
+    }
+    # AA-VERSION contains AppAPI version, for now it can be only one version, so no handling of it.
+    if headers["EX-APP-ID"] != os.environ["APP_ID"]:
+        raise ValueError(
+            f"Invalid EX-APP-ID:{headers['EX-APP-ID']} != {os.environ['APP_ID']}"
+        )
+
+    if headers["EX-APP-VERSION"] != os.environ["APP_VERSION"]:
+        raise ValueError(
+            f"Invalid EX-APP-VERSION:{headers['EX-APP-VERSION']} <=> {os.environ['APP_VERSION']}"
+        )
+
+    auth_aa = b64decode(headers.get("AUTHORIZATION-APP-API", "")).decode("UTF-8")
+    username, app_secret = auth_aa.split(":", maxsplit=1)
+    if app_secret != os.environ["APP_SECRET"]:
+        raise ValueError(
+            f"Invalid APP_SECRET:{app_secret} != {os.environ['APP_SECRET']}"
+        )
+    return username
+
+
+def dav_call(
+    method: str,
+    path: str,
+    nc: NextcloudApp,
+    data: typing.Optional[typing.Union[str, bytes]] = None,
+    **kwargs,
+):
+    headers = kwargs.pop("headers", {})
+    data_bytes = None
+    if data is not None:
+        data_bytes = data.encode("UTF-8") if isinstance(data, str) else data
+    path = quote("/remote.php/dav" + path)
+
+    print(f"Path quoted: {path}")
+
+    nc.log(LogLvl.WARNING, f"Path quoted: {path}")
+
+    folder_path = path.rsplit("/", 1)[0]
+    print(f"Folder path quoted: {folder_path}")
+
+    nc.log(LogLvl.WARNING, f"Folder path quoted: {folder_path}")
+
+    sign_request(headers, kwargs.get("user", ""))
+
+    nc.log(LogLvl.WARNING, f"Full URL: {get_nc_url() + folder_path}")
+
+    # creating the folder
+    httpx.request(
+        "MKCOL", url=get_nc_url() + folder_path, headers=headers, timeout=3000
+    )
+
+    # performing the request
+    return httpx.request(
+        method,
+        url=get_nc_url() + path,
+        content=data_bytes,
+        headers=headers,
+        timeout=3000,
+    )
+
+
 def ocs_call(
     method: str,
     path: str,
@@ -183,16 +251,20 @@ def extract_folder_name(zip_filename, nc_file_path):
         return None
 
 
-def extract_to_auto(input_file: FsNode, nc: NextcloudApp, extract_to="auto"):
+def extract_to_auto(input_file: FsNode, nc: NextcloudApp, user_id, extract_to="auto"):
     print(input_file)
+    nc.log(LogLvl.WARNING, f"Input_file: {input_file}")
 
-    input_file_name = input_file.user_path.split("\\")[-1]
+    print(f"user: {user_id}")
+    print(f"Directory separator: {os.sep}")
+
+    input_file_name = input_file.user_path.split(os.sep)[-1]
 
     nc.log(LogLvl.WARNING, f"input_file_name path: {input_file_name}")
     print(f"input_file_name path: {input_file_name}")
 
     dav_file_path = input_file.user_path.replace("\\", "/")
-    user_id, dav_file_path = dav_file_path.split("/", 1)
+    # user_id, dav_file_path = dav_file_path.split("/", 1)[]
 
     nc.log(LogLvl.WARNING, f"DAV file path: {dav_file_path}")
     print(f"DAV file path: {dav_file_path}")
@@ -258,12 +330,33 @@ def extract_to_auto(input_file: FsNode, nc: NextcloudApp, extract_to="auto"):
             # print(f"Replacing the forward slashes: {dav_save_file_path}")
             dav_save_file_path = dav_save_file_path.replace("//", "/")
 
-            dav_save_file_path = dav_save_file_path.split("/", 1)[-1]
+            if dav_save_file_path.startswith(user_id):
+                dav_save_file_path = dav_save_file_path.split("/", 1)[-1]
 
             nc.log(LogLvl.WARNING, f"Final DAV path: {dav_save_file_path}")
             print(f"Final DAV path: {dav_save_file_path}")
 
-            nc.files.upload_stream(path=dav_save_file_path, fp=filename)
+            nc.log(LogLvl.WARNING, f"Uploading: {filename} to: {dav_save_file_path}")
+            try:
+                nc.files.upload_stream(path=dav_save_file_path, fp=filename)
+            except Exception as ex:
+                nc.log(LogLvl.WARNING, "Error uploading, using alt")
+                dav_save_file_path = f"/files/{user_id}/{dav_save_file_path}"
+
+                nc.log(
+                    LogLvl.WARNING, f"dav_save_file_path becomes: {dav_save_file_path}"
+                )
+
+                dav_call(
+                    "PUT",
+                    dav_save_file_path,
+                    nc,
+                    data=open(str(filename), "rb").read(),
+                    user=user_id,
+                )
+
+                nc.log(LogLvl.ERROR, f"ERROR: {ex}")
+
             os.remove(str(filename))
 
         try:
@@ -276,16 +369,18 @@ def extract_to_auto(input_file: FsNode, nc: NextcloudApp, extract_to="auto"):
 
         nc.log(LogLvl.WARNING, "Result uploaded")
         print(f"{input_file_name} finished!", f"{input_file_name} is waiting for you!")
-        nc.notifications.create(
-            subject=f"{input_file_name} finished!",
-            message=f"{input_file_name} is waiting for you!",
-        )
 
-        create_notification(
-            user_id,
-            f"{input_file_name} finished!",
-            "Extracted file(s) are waiting for you!",
-        )
+        try:
+            nc.notifications.create(
+                subject=f"{input_file_name} finished!",
+                message=f"{input_file_name} is waiting for you!",
+            )
+        except Exception as ex:
+            create_notification(
+                user_id,
+                f"{input_file_name} finished!",
+                "Extracted file(s) are waiting for you!",
+            )
 
     except Exception as e:
         nc.log(LogLvl.ERROR, str(e))
@@ -295,20 +390,32 @@ def extract_to_auto(input_file: FsNode, nc: NextcloudApp, extract_to="auto"):
 @APP.post("/extract_to_auto")
 async def endpoint_extract_to_auto(
     file: UiActionFileInfo,
+    request: Request,
     nc: Annotated[NextcloudApp, Depends(nc_app)],
     background_tasks: BackgroundTasks,
 ):
-    background_tasks.add_task(extract_to_auto, file.to_fs_node(), nc)
+    try:
+        user_id = sign_check(request)
+    except ValueError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+
+    background_tasks.add_task(extract_to_auto, file.to_fs_node(), nc, user_id, "auto")
     return Response()
 
 
 @APP.post("/extract_to_parent")
 async def endpoint_extract_to_parent(
     file: UiActionFileInfo,
+    request: Request,
     nc: Annotated[NextcloudApp, Depends(nc_app)],
     background_tasks: BackgroundTasks,
 ):
-    background_tasks.add_task(extract_to_auto, file.to_fs_node(), nc, "parent")
+    try:
+        user_id = sign_check(request)
+    except ValueError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+
+    background_tasks.add_task(extract_to_auto, file.to_fs_node(), nc, user_id, "parent")
     return Response()
 
 
